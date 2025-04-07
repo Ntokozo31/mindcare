@@ -49,4 +49,26 @@ const register = async (req, res) => {
         // Hash the password
         // Use bcrypt to hash the password with a salt rounds of 10
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Get the database connection
+        const db = getDB();
+
+        // Check if a user with the same email already exists in the database
+        const existUser = await db.collection('users').findone({ email });
+
+        // If a user with the same email exists, return an error response
+        if (existUser) {
+            return res.status(400).json({ error: 'User with this email already exist'})
+        }
+
+        // Create a new user object with the provided username, email, and hashed password
+        const newUser = {
+            username,
+            email,
+            password: hashedPassword,
+            createdAt: new Date(),
+        };
+
+        // Insert the new user into the database
+        await db.collection('users').insertOne(newUser);
     }
