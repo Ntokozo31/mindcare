@@ -54,7 +54,7 @@ const register = async (req, res) => {
         const db = getDB();
 
         // Check if a user with the same email already exists in the database
-        const existUser = await db.collection('users').findone({ email });
+        const existUser = await db.collection('Users').findone({ email });
 
         // If a user with the same email exists, return an error response
         if (existUser) {
@@ -70,5 +70,28 @@ const register = async (req, res) => {
         };
 
         // Insert the new user into the database
-        await db.collection('users').insertOne(newUser);
-    }
+        await db.collection('Users').insertOne(newUser);
+        // Generate a JWT token for the new user
+        // Use jwt.sign to create a token with the user's ID and a secret key
+        const userToken = jwt.sign(
+            { id: newUser._id },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRATION }
+        );
+
+        // Set the token as a cookie in the response
+        // Use the res.cookie method to set the token cookie with options
+        res.cookie('token', userToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'Strict',
+            maxAge: 60 * 60 * 1000
+        })
+        // Return a success response with the user's username
+        res.status(201).json({ message: `Welcome to Mind Care ${username}`})
+    // Catch any errors that occur during the registration process
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    };
+};
