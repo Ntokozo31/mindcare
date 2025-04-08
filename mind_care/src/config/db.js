@@ -8,7 +8,7 @@ let dbClient;
 require('dotenv').config();
 
 // Get the MongoDB URI from environment variables
-const uri = process.env.MONGODB_URI;
+const uri = process.env.MONGO_URI;
 
 // Connect to the MongoDB database
 module.exports = { 
