@@ -7,7 +7,7 @@ const router = express.Router();
 // Import the journal controller functions
 // These functions handle the logic for each route
 // They are defined in the journal controller file
-const { getAllEntries, createEntry, updateEntry, deleteEntry } = require('../controllers/journal');
+//const { getAllEntries, createEntry, updateEntry, deleteEntry } = require('../controllers/journal');
 
 // Route to get all journal entries
 // This route uses the GET method to retrieve all journal entries

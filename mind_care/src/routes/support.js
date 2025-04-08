@@ -13,24 +13,24 @@ const { getSupportResources, createSupportResource, updateSupportResource, delet
 // Route to get all support resources
 // This route uses the GET method to retrieve all support resources
 // The controller function getSupportResources is called when this route is accessed
-router.get('/support', getSupportResources);
+router.get('/all', getSupportResources);
 
 // Route to create a new support resource
 // This route uses the POST method to create a new support resource.
 // The controller function createSupportResource is called when this route is accessed
-router.post('/support', createSupportResource);
+router.post('/create', createSupportResource);
 
 // Route to update an existing support resource
 // This route uses the PUT method to update an existing support resource
 // The controller function updateSupportResource is called when this route is accessed
-router.put('/support/:id', updateSupportResource);
+router.put('/update/:id', updateSupportResource);
 
 // Route to delete a support resource
 // This route uses the DELETE method to delete a support resource
 // The controller function deleteSupportResource is called when this route is accessed
 // The :id parameter is used to specify which support resource to delete
 // The id of the support resource is passed to the controller function
-router.delete('/support/:id', deleteSupportResource);
+router.delete('/delete/:id', deleteSupportResource);
 
 // Export the router
 module.exports = router;

@@ -11,10 +11,10 @@ const { getUserProfile, updateUserProfile, deleteUserProfile } = require('../con
 router.get('/profile', getUserProfile);
 
 // Route to update user profile
-router.put('/profile', updateUserProfile);
+router.put('/update', updateUserProfile);
 
 // Route to delete user profile
-router.delete('/profile', deleteUserProfile);
+router.delete('/delete', deleteUserProfile);
 
 // Export the router
 module.exports = router;

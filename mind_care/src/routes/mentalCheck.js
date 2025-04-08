@@ -13,12 +13,11 @@ const { createMentalCheck, getAllMentalCheck } = require('../controllers/mentalC
 // Route to create a new mental check
 // This route uses the POST method to create a new mental check
 // The controller function mentalCheck is called when this route is accessed
-router.post('/mentalCheck', createMentalCheck);
-
+router.post('/create', createMentalCheck);
 // Route to get all mental checks.
 // This route uses the GET method to retrieve all mental checks.
 // The controller function getAllMentalCheck is called when this route is accessed
-router.get('/mentalCheck', getAllMentalCheck);
+router.get('/all', getAllMentalCheck);
 
 // Export the router
 module.exports = router;

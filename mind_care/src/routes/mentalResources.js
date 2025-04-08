@@ -12,23 +12,23 @@ const { getAllResources, createResource, updateResource, deleteResource } = requ
 // Route to get all mental resources
 // This route uses the GET method to retrieve all mental resources
 // The controller function getAllResources is called when this route is accessed
-router.get('/mentalResources', getAllResources);
+router.get('/all', getAllResources);
 
 // Route to create a new mental resource
 // This route uses the POST method to create a new mental resource
 // The controller function createResource is called when this route is accessed
-router.post('/mentalResources', createResource);
+router.post('/create', createResource);
 
 // Route to update an existing mental resource
 // This route uses the PUT method to update an existing mental resource
 // The controller function updateResource is called when this route is accessed
 // The :id parameter is used to specify which mental resource to update
-router.put('/mentalResources/:id', updateResource);
+router.put('/update/:id', updateResource);
 
 // Route to delete a mental resource
 // This route uses the DELETE method to delete a mental resource
 // The controller function deleteResource is called when this route is accessed
-router.delete('/mentalResources/:id', deleteResource);
+router.delete('/delete/:id', deleteResource);
 
 
 // Export the router
