@@ -23,7 +23,7 @@ const validator = require('validator');
 const { ObjectId } = require('mongodb');
 
 // Function to handle user registration
-const register = async (req, res) => {
+const registerUser = async (req, res) => {
     try {
         // Get username, email, and password from the request body
         const { username, email, password } = req.body;
@@ -54,7 +54,7 @@ const register = async (req, res) => {
         const db = getDB();
 
         // Check if a user with the same email already exists in the database
-        const existUser = await db.collection('Users').findone({ email });
+        const existUser = await db.collection('Users').findOne({ email });
 
         // If a user with the same email exists, return an error response
         if (existUser) {
@@ -80,7 +80,7 @@ const register = async (req, res) => {
         );
 
         // Set the token as a cookie in the response
-        // Use the res.cookie method to set the token cookie with options
+        // Use the res.cookie method to set the token cookie.
         res.cookie('token', userToken, {
             httpOnly: true,
             secure: false,
@@ -94,4 +94,60 @@ const register = async (req, res) => {
         console.error(err);
         res.status(500).json({ error: 'Internal server error' });
     };
+};
+
+// Function to handle user login
+const loginUser = async (req, res) => {
+    try {
+        // Get email and password from the request body
+        const { email, password } = req.body;
+
+        // Connect to the database
+        const db = getDB();
+
+        // Check if the user exists in the database
+        const user = await db.collection('Users').findOne({ email });
+
+        // If the user does not exist, return an error response
+        if (!user) {
+            return res.status(401).json({ error: 'User not found' });
+        }
+
+        // Check if the password is correct
+        // Use bcrypt to compare the provided password with the hashed password in the database
+        const isMatch = await bcrypt.compare(password, user.password);
+        // If the password does not match, return an error response
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        // Generate a JWT token for the user
+        // Use jwt.sign to create a token with the user's ID and a secret key
+        // The token will expire after the specified expiration time
+        const userToken = jwt.sign(
+            { id: user._id },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRATION }
+        )
+
+        // Set the token as a cookie in the response
+        // Use the res.cookie method to set the token cookie
+        res.cookie('token', userToken, {
+            hrrpOnly: true,
+            secure: false,
+            sameSite: 'Strict',
+            maxAge: 60 * 60 * 1000
+        })
+        res.status(200).json({ message: `Welcome back ${user.username}` });
+    // Catch any errors that occur during the login process
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+module.exports = {
+    registerUser,
+    loginUser,
+    //logoutUser
 };
