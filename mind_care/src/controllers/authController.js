@@ -146,8 +146,29 @@ const loginUser = async (req, res) => {
     }
 };
 
+// Function to handle user logout
+const logoutUser = async (req, res) => {
+    try {
+        // Clear the token cookie to log out the user
+        // Use the res.clearCookie method to remove the token cookie
+        // The cookie is cleared by setting the same options used when it was created
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'Strict',
+        })
+        // Return a success response
+        res.status(200).json({ message: 'Logged out successfully' });
+    // Catch any errors that occur during the logout process
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// Export the controller functions
 module.exports = {
     registerUser,
     loginUser,
-    //logoutUser
+    logoutUser,
 };
