@@ -8,7 +8,7 @@ const router = express.Router();
 // These functions handle the logic for each route
 // They are defined in the auth controller file
 // These functions are responsible for handling the requests and responses
-const { registerUser, loginUser } = require('../controllers/authController');
+const { registerUser, loginUser, logoutUser } = require('../controllers/authController');
 
 // Route for user registration
 // This route uses the POST method to register a new user
@@ -30,7 +30,7 @@ router.post('/login', loginUser);
 // It invalidates the user's token and ends the session
 // The token is sent in the Authorization header of the request
 // The server verifies the token and logs out the user
-//router.post('/logout', logoutUser);
+router.post('/logout', logoutUser);
 
 // Export the router
 module.exports = router;
