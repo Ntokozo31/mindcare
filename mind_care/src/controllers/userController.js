@@ -140,8 +140,58 @@ const updateUserProfile = async (req, res) => {
     }
 }
 
+// Function to handle user profile deletion
+const deleteUserProfile = async (req, res) => {
+    try {
+        // Get token from cookies
+        const userToken = req.cookies.token;
+
+        // Check if the user is authenticated
+        // If the user is not authenticated, return an error response
+        if (req.params.id !== req.userId) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        // If token is not provided, return an error response
+        if (!userToken) {
+            return res.status(401).json({ message: 'Sorry please try to login again' });
+        }
+
+        // Decode the token to get the user ID
+        // Use jwt.verify to decode the token using the JWT_SECRET
+        const decode = jwt.verify(userToken, JWT_SECRET);
+
+        // Get the user ID from the decoded token
+        const userId = decode.id;
+        // Connect to database
+        const db = getDB();
+
+        // Convert the user ID to ObjectId
+        // Use the ObjectId constructor to convert the user ID string to ObjectId
+        // This is necessary to query the database for the user
+        const objectId = new ObjectId(userId);
+
+        // Delete the user from the database using the ObjectId
+        // Use the deleteOne method to delete the user from the Users collection
+        const result = await db.collection('Users').deleteOne({ _id: objectId });
+        
+        // If the user is deleted, return a success response
+        // Else, return an error response
+        if (result.deletedCount > 0) {
+            return res.status(200).json({ message: 'User profile deleted successfully' });
+        } else {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        // Catch any errors that occur during the process
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 // Export the user controller functions
 module.exports = {
     getUserProfile,
-    updateUserProfile
+    updateUserProfile,
+    deleteUserProfile
 }
