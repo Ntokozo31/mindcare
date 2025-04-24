@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 
 // Import the user controller functions
-const { getUserProfile, updateUserProfile, deleteUserProfile } = require('../controllers/user');
+const { getUserProfile, updateUserProfile, deleteUserProfile } = require('../controllers/userController');
 
 // Route to get user profile
 router.get('/profile', getUserProfile);
