@@ -1,10 +1,8 @@
-const { getDB } = require('../db/db');
-
-// Import jwt
-const jwt = require('jsonwebtoken');
+const { getDB } = require('../config/db');
 
 // Import dotenv to load environment variables  
 require('dotenv').config();
+
 // Import JWT_SECRET
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -33,7 +31,7 @@ const getAllEntries = async (req, res) => {
         }
         // Decode the token to get the user ID
         // Use jwt.verify to decode the token using the JWT_SECRET
-        const decoded = jwt.verify(userId, JWT_SECRET);
+        const decoded = jwt.verify(userToken, JWT_SECRET);
 
         // Get the user ID from the decoded token
         const userId = decoded.id;
@@ -49,14 +47,24 @@ const getAllEntries = async (req, res) => {
         const objectId = new ObjectId(userId);
 
         // Find all journal entries for the user in the database
-        const entries = await db.collection('Journals').find({ _id: objectId }).toArray();
+        const entries = await db.collection('Journals').find(
+            {userId: objectId },
+            {
+                projection: {
+                    _id: 0,
+                    name: 1,
+                    prompt: 1,
+                    date: 1,
+                }
+            }
+        ).toArray();
 
-        // If entries are found, return them
-        if (entries.length > 0) {
-            return res.status(200).json(entries);
-        } else {
+        // If entries are not found, return an error response.
+        if (entries.length === 0) {
             return res.status(404).json({ message: 'No journal entries found' });
         }
+        // Return the journal entries
+        return res.status(200).json(entries);
     } catch (error) {
         // Handle any errors that occur during the process
         console.error('Error retrieving journal entries:', error);
@@ -138,8 +146,51 @@ const createEntry = async (req, res) => {
     }
 }
 
+// Function to handle journal entry type retrieval
+const getJournalTypes = async (req, res) => {
+    try {
+        // Get token from cookies
+        const userToken = req.cookies.token;
+        // Check if the user is authenticated
+        // If the user is not authenticated, return an error response
+        if (req.params.id !== req.userId) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        // If the userToken is not provided, return an error response
+        if (!userToken) {
+            return res.status(401).json({ message: 'Sorry please try to login again.' });
+        }
+
+        // Decode the token to get the user ID
+        // Use jwt.verify to decode the token using the JWT_SECRET
+        const decoded = jwt.verify(userToken, JWT_SECRET);
+
+        // Get the user ID from the decoded token
+        const userId = decoded.id;
+
+        // Connect to the database
+        const db = getDB();
+
+        // Find all journal types in the database
+        const types = await db.collection('JournalsType').find({}, { projection: {_id: 0} }).toArray();
+
+        // If types are not found, return an error response
+        if (types.length === 0) {
+            return res.status(404).json({ message: 'No journal types found' });
+        }
+        // Return the journal types
+        return res.status(200).json(types);
+    } catch (error) {
+        // Handle any errors that occur during the process
+        console.error('Error retrieving journal types:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 // Export the journal controller functions
 module.exports = {
     getAllEntries,
-    createEntry
+    createEntry,
+    getJournalTypes
 }
