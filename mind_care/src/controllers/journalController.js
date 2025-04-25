@@ -188,6 +188,45 @@ const getJournalTypes = async (req, res) => {
     }
 }
 
+// Function to handle journal entry update
+const updateEntry = async (req, res) => {
+    try {
+        // Get token from cookies
+        const userToken = req.cookies.token;
+
+        // Check if the user is aunthenticated
+        // If the user is not authenticated, return an error response
+        if (req.params.id !== req.userId) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        // If the userToken is not provided, return an error response
+        if (!userToken) {
+            return res.status(401).json({ message: 'Sorry please try to login again.' });
+        }
+
+        // Decode the token to get the user ID
+        // Use jwt.verify to decode the token using the JWT_SECRET
+        const decoded = jwt.verify(userToken, JWT_SECRET);
+
+        // Get the user ID from the decoded token
+        const userId = decoded.id;
+
+        // Connect to the database
+        const db = getDB();
+
+        // Convert the user ID to ObjectId
+        const objectId = new ObjectId(userId);
+        // Get the journal entry ID from the request parameters
+        const entryId = req.params.id;
+        // Check if the entry ID is valid
+        if (!entryId) {
+            return res.status(400).json({ message: 'Invalid entry ID' });
+        }
+        // Get the updated entry data from the request body
+    }
+}
+
 // Export the journal controller functions
 module.exports = {
     getAllEntries,
