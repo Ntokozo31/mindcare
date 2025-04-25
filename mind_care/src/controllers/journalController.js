@@ -172,6 +172,9 @@ const getJournalTypes = async (req, res) => {
         // Connect to the database
         const db = getDB();
 
+        // Convert the user ID to ObjectId
+        const objectId = new ObjectId(userId);
+
         // Find all journal types in the database
         const types = await db.collection('JournalsType').find({}, { projection: {_id: 0} }).toArray();
 
@@ -191,56 +194,38 @@ const getJournalTypes = async (req, res) => {
 // Function to handle journal entry update
 const updateEntry = async (req, res) => {
     try {
-        // Get token from cookies
-        const userToken = req.cookies.token;
-
-        // Check if the user is aunthenticated
-        // If the user is not authenticated, return an error response
-        if (req.params.id !== req.userId) {
-            return res.status(403).json({ message: 'Access denied' });
-        }
-
-        // If the userToken is not provided, return an error response
-        if (!userToken) {
-            return res.status(401).json({ message: 'Sorry please try to login again.' });
-        }
-
-        // Decode the token to get the user ID
-        // Use jwt.verify to decode the token using the JWT_SECRET
-        const decoded = jwt.verify(userToken, JWT_SECRET);
-
-        // Get the user ID from the decoded token
-        const userId = decoded.id;
-
-        // Connect to the database
-        const db = getDB();
-
-        // Convert the user ID to ObjectId
-        const objectId = new ObjectId(userId);
-        // Get the journal entry ID from the request parameters
+        //Get the Journal entry ID from the request parameters
         const entryId = req.params.id;
+
         // Check if the entry ID is valid
         if (!entryId) {
             return res.status(400).json({ message: 'Invalid entry ID' });
         }
-        // Get the updated entry data from the request body
+
+        // Getthe updated entry data from the request body
         const { name, prompt } = req.body;
 
-        // Check if the updated entry data is provided
-        // If any of them is missing, return an error response
-        if (!name || !prompt) {
-            return res.status(400).json({ message: 'Please fill in all fields' });
+        // Validate the updated entry data
+        if (!name || name.length < 6) {
+            return res.status(400).json({ message: 'Name must be at least 6 characters long' });
         }
 
-        // Validate the updated entry data
-        // Check if the name and content are at least 6 characters long
-        // If the name or prompt is less than 6 characters, return an error response
-        if (!name || name.length < 6) {
-            return res.status(400).json({ message: 'Title must be at least 6 characters long' });
-        }
         if (!prompt || prompt.length < 6) {
-            return res.status(400).json({ message: 'Content must be at least 6 characters long' });
+            return res.status(400).json({ message: 'Prompt must be at least 6 characters long' });
         }
+
+        // Connect to the database
+        const db = getDB();
+
+        // Find the Journal entry in the DB
+        const entry = await db.collection('Journals').findOne({ _id: new ObjectId(entryId) });
+
+        // Check if the user owns the Journal
+        // If the user does not own the Journal, return an error response
+        if (entry.userId.toString() !== req.userId) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
         // Create an updated entry object
         const updatedEntry = {
             name: req.body.name,
@@ -252,6 +237,17 @@ const updateEntry = async (req, res) => {
             { _id: new ObjectId(entryId) },
             { $set: updatedEntry }
         );
+
+        // If the entry is updated successfully, return a success response
+        if (result.modifiedCount > 0) {
+            return res.status(200).json({ message: 'Journal entry updated successfully' });
+        } else {
+            return res.status(404).json({ message: 'Journal entry not found' });
+        }
+    } catch (error) {
+        // Handle any errors that occur during the process
+        console.error('Error updating journal entry:', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 }
 
@@ -259,5 +255,6 @@ const updateEntry = async (req, res) => {
 module.exports = {
     getAllEntries,
     createEntry,
-    getJournalTypes
+    getJournalTypes,
+    updateEntry
 }
