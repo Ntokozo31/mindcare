@@ -224,6 +224,34 @@ const updateEntry = async (req, res) => {
             return res.status(400).json({ message: 'Invalid entry ID' });
         }
         // Get the updated entry data from the request body
+        const { name, prompt } = req.body;
+
+        // Check if the updated entry data is provided
+        // If any of them is missing, return an error response
+        if (!name || !prompt) {
+            return res.status(400).json({ message: 'Please fill in all fields' });
+        }
+
+        // Validate the updated entry data
+        // Check if the name and content are at least 6 characters long
+        // If the name or prompt is less than 6 characters, return an error response
+        if (!name || name.length < 6) {
+            return res.status(400).json({ message: 'Title must be at least 6 characters long' });
+        }
+        if (!prompt || prompt.length < 6) {
+            return res.status(400).json({ message: 'Content must be at least 6 characters long' });
+        }
+        // Create an updated entry object
+        const updatedEntry = {
+            name: req.body.name,
+            prompt: req.body.prompt,
+            date: new Date()
+        }
+        // Update the journal entry in the database
+        const result = await db.collection('Journals').updateOne(
+            { _id: new ObjectId(entryId) },
+            { $set: updatedEntry }
+        );
     }
 }
 
