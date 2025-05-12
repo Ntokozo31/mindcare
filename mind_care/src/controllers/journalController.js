@@ -51,7 +51,7 @@ const getAllEntries = async (req, res) => {
             {userId: objectId },
             {
                 projection: {
-                    _id: 0,
+                    //_id: 0,
                     name: 1,
                     prompt: 1,
                     date: 1,
